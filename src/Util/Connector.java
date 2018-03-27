@@ -1,4 +1,5 @@
 package Util;
+import java.io.*;
 import java.sql.*;
 
 
@@ -12,16 +13,20 @@ public class Connector {
     }
 
     private Connector() {
-        String url = "jdbc:oracle:thin:@localhost:1522:ug";
-        String username = "ora_xxxxx";
-        String password = "adddddddd";
         try{
+            String url = "jdbc:oracle:thin:@localhost:1522:ug";
+            BufferedReader login = new BufferedReader(new FileReader("login"));
+            String username = login.readLine();
+            String password = login.readLine();
+
             DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Database connected.");
         } catch (SQLException e) {
             System.err.println("Fail to connect to database: " + e.getErrorCode());
             System.exit(0);
+        } catch (IOException e) {
+            System.err.println("Login file not found.");
         }
     }
 
