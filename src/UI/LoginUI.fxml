@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UI.LoginUIController">
+   <children>
+      <ImageView fitHeight="122.0" fitWidth="372.0" layoutX="22.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../figs/logo.png" />
+         </image>
+      </ImageView>
+      <TextField fx:id="account" layoutX="83.0" layoutY="203.0" prefHeight="27.0" prefWidth="235.0" promptText="email" />
+      <Button fx:id="loginButton" layoutX="173.0" layoutY="459.0" mnemonicParsing="false" text="Log in" />
+      <RadioButton fx:id="employeeButton" layoutX="212.0" layoutY="394.0" mnemonicParsing="false" onMouseReleased="#handleEmployeeButton" text="Employee" />
+      <RadioButton fx:id="customerButton" layoutX="107.0" layoutY="394.0" mnemonicParsing="false" onMouseReleased="#handleCustomerButton" text="Customer" />
+      <PasswordField fx:id="password" layoutX="83.0" layoutY="300.0" prefHeight="27.0" prefWidth="235.0" promptText="password" />
+   </children>
+</AnchorPane>
