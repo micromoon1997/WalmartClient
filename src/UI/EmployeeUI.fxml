@@ -2,36 +2,59 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UI.EmployeeUIController">
    <children>
-      <SplitPane dividerPositions="0.22431077694235588" layoutX="386.0" layoutY="196.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="1080.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.5739348370927319" layoutX="386.0" layoutY="196.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="1080.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
+            <AnchorPane fx:id="showPane" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <TableView fx:id="cartView" layoutX="91.0" layoutY="55.0" prefHeight="454.0" prefWidth="1078.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn fx:id="pidColumn" prefWidth="200.0" text="Pid" />
+                      <TableColumn fx:id="pnameColumn" maxWidth="600.0" prefWidth="600.0" text="Name" />
+                        <TableColumn fx:id="pQuantityColumn" prefWidth="100.0" text="Quantity" />
+                        <TableColumn fx:id="ppriceColumn" prefWidth="160.0" text="Price" />
+                    </columns>
+                  </TableView>
+                  <ListView fx:id="searchView" prefHeight="454.0" prefWidth="1078.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <SplitPane dividerPositions="0.2853159851301115" prefHeight="175.0" prefWidth="1078.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <SplitPane dividerPositions="0.27695167286245354" prefHeight="175.0" prefWidth="1078.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="173.0" prefWidth="279.0">
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="342.0" prefWidth="410.0">
                            <children>
-                              <TextField layoutX="20.0" layoutY="27.0" promptText="pid" />
-                              <Button layoutX="199.0" layoutY="27.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="89.0" text="Add to cart" />
-                              <ChoiceBox layoutX="22.0" layoutY="73.0" prefHeight="27.0" prefWidth="110.0" />
-                              <TextField layoutX="19.0" layoutY="124.0" />
-                              <Button layoutX="146.0" layoutY="73.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="141.0" text="View Search Result" />
-                              <Button layoutX="198.0" layoutY="124.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="89.0" text="Search" />
+                              <TextField fx:id="pidBox" layoutX="10.0" layoutY="67.0" prefHeight="27.0" prefWidth="270.0" promptText="pid" />
+                              <Button fx:id="addToCart" layoutX="10.0" layoutY="101.0" mnemonicParsing="false" onMouseReleased="#handleAddToCart" prefHeight="27.0" prefWidth="89.0" text="Add to Cart" />
+                              <ChoiceBox layoutX="8.0" layoutY="175.0" prefHeight="27.0" prefWidth="97.0" />
+                              <TextField fx:id="searchBox" layoutX="9.0" layoutY="143.0" prefHeight="27.0" prefWidth="271.0" />
+                              <Button layoutX="8.0" layoutY="208.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="141.0" text="View Search Result" />
+                              <Button fx:id="search" layoutX="126.0" layoutY="175.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="89.0" text="Search" />
+                              <Button layoutX="200.0" layoutY="102.0" mnemonicParsing="false" text="Checkout" />
+                              <Button layoutX="115.0" layoutY="102.0" mnemonicParsing="false" onMouseReleased="#handleRemove" text="Remove" />
+                              <TextField layoutX="6.0" layoutY="259.0" prefHeight="27.0" prefWidth="124.0" promptText="yyyy/mm/dd" />
+                              <Label layoutX="138.0" layoutY="263.0" text="to" />
+                              <TextField layoutX="159.0" layoutY="258.0" prefHeight="27.0" prefWidth="124.0" promptText="yyyy/mm/dd" />
+                              <Button layoutX="6.0" layoutY="296.0" mnemonicParsing="false" text="Sale Report" />
+                              <TextField fx:id="emailBox" layoutX="10.0" layoutY="7.0" promptText="Cutomer Email" />
+                              <Button fx:id="setCustomer" layoutX="183.0" layoutY="7.0" mnemonicParsing="false" onMouseReleased="#handleSetCustomer" text="Set Customer" />
                            </children>
                         </AnchorPane>
-                        <FlowPane prefHeight="200.0" prefWidth="200.0" />
+                        <FlowPane prefHeight="342.0" prefWidth="771.0" />
                     </items>
                   </SplitPane>
                </children>
             </AnchorPane>
-            <VBox prefHeight="200.0" prefWidth="100.0" />
         </items>
       </SplitPane>
    </children>

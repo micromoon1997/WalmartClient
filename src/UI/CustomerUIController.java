@@ -24,33 +24,26 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
-import javax.xml.soap.Text;
-
 public class CustomerUIController {
 
     private VBox cartPane = new VBox();
     private FlowPane itemPane = new FlowPane();
     private ObservableList<String> choices;
     private static Connector connector = Connector.getInstance();
+    private Alert error = new Alert(Alert.AlertType.ERROR);
 
     @FXML
     private ResourceBundle resources;
-
     @FXML
     private URL location;
-
     @FXML
     private Button searchButton, myCart, checkout;
-
     @FXML
     private ScrollPane scrollPane;
-
     @FXML
     private ChoiceBox<String> choiceBox;
-
     @FXML
     private AnchorPane topPane;
-
     @FXML
     private TextField searchBox;
 
@@ -58,6 +51,8 @@ public class CustomerUIController {
     void initialize() {
         assert searchButton != null : "fx:id=\"searchButton\" was not injected: check your FXML file 'CustomerUI.fxml'.";
         assert itemPane != null : "fx:id=\"itemPane\" was not injected: check your FXML file 'CustomerUI.fxml'.";
+        error.setHeaderText(null);
+        error.setTitle("Error");
         scrollPane.setContent(itemPane);
         itemPane.setId("itemPane");
         cartPane.setId("cartPane");
@@ -72,7 +67,7 @@ public class CustomerUIController {
         String category = choiceBox.getValue().toString();
         System.out.println(category);
         String searchKeys = searchBox.getText();
-        String sql = SQLBuilder.buildSearchSQL(category, searchKeys);
+        String sql = SQLBuilder.buildSearchProductSQL(category, searchKeys);
         ResultSet res = connector.sendSQL(sql);
         while (res.next()) {
             String pId = res.getString("p_id");
@@ -107,17 +102,8 @@ public class CustomerUIController {
 
     @FXML
     private void handleCheckout() throws SQLException {
-        String maxTransNumSql = "SELECT MAX(TRANSACTIONNUM) FROM TRANSACTION_DEALWITH_PAY";
-        ResultSet rs = connector.sendSQL(maxTransNumSql);
-        String transNum = "0000000000";
-        rs.next();
-        String maxTransNum = rs.getString("MAX(TRANSACTIONNUM)");
-        if (maxTransNum != null) {
-            transNum = String.format("%010d", Integer.parseInt(maxTransNum) + 1);
-        }
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String dateTime = now.format(dtf);
+        String transNum = connector.getNextTransNum();
+        String dateTime = connector.getDateTime();
         String email = connector.getAccount();
         double total = 0.00;
         for (Node n: cartPane.getChildren()) {
@@ -126,11 +112,8 @@ public class CustomerUIController {
             int quantity = Integer.parseInt(quantityField.getText());
             if (!checkInventory(item.getId(), quantity)) {
                 Label nameLabel = (Label) item.getChildren().get(0);
-                Alert quantityError = new Alert(Alert.AlertType.ERROR);
-                quantityError.setHeaderText(null);
-                quantityError.setTitle("No Enough Inventory");
-                quantityError.setContentText(nameLabel.getText() + " does not have enough inventory.");
-                quantityError.showAndWait();
+                error.setContentText(nameLabel.getText() + " does not have enough inventory.");
+                error.showAndWait();
                 return;
             }
             Label itemTotalLabel = (Label) item.getChildren().get(3);
@@ -147,6 +130,7 @@ public class CustomerUIController {
         ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(creditCard, debitCard, cash, cancel);
         Optional<ButtonType> result = alert.showAndWait();
+        System.out.println(result.toString());
         if (result.get() != cancel) {
             String pm = result.get().getText();
             String insertTransactionSql = SQLBuilder.buildInsertTransactionSQL(transNum, dateTime, pm, email,
@@ -177,7 +161,7 @@ public class CustomerUIController {
             Image img = new Image(thumbnail, true);
             lthumbnail.setImage(img);
         } catch (IllegalArgumentException e) {
-
+            // TODO
         }
         Label lname = new Label(pName);
         Label lprice = new Label(String.format("$ %.2f", price));
@@ -186,11 +170,12 @@ public class CustomerUIController {
         lname.setPrefSize(150.0, 50.0);
         lprice.setPrefSize(100.0, 50.0);
         addToCart.setPrefSize(50.0, 50.0);
-        item.getChildren().add(lthumbnail);
-        item.getChildren().add(lname);
-        item.getChildren().add(lprice);
-        item.getChildren().add(addToCart);
+        item.getChildren().addAll(lthumbnail, lname, lprice, addToCart);
         addToCart.setOnMouseReleased(getAddHandler(pId, pName, price));
+//        Label testXXX = new Label("Add");
+//        testXXX.setPrefSize(50.0, 50.0);
+//        item.getChildren().addAll(testXXX);
+//        testXXX.setOnMouseReleased(getAddHandler(pId, pName, price));
         return item;
     }
 
@@ -281,10 +266,6 @@ public class CustomerUIController {
     private boolean checkInventory(String pId, int quantiry) throws SQLException{
         String sql = SQLBuilder.buildSelectInventorySQL(pId);
         ResultSet res = connector.sendSQL(sql);
-        if (res.next()) {
-            return res.getInt("inventory") >= quantiry;
-        } else {
-            return false;
-        }
+        return res.next() && res.getInt("inventory") >= quantiry;
     }
 }

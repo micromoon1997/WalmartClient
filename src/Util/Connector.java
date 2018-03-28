@@ -1,6 +1,13 @@
 package Util;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+
 import java.io.*;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 
 public class Connector {
@@ -51,6 +58,50 @@ public class Connector {
 
     public String getAccount() {
         return account;
+    }
+
+    public boolean validateAccount(String acc, String pw, char type) throws SQLException{
+        String sql = SQLBuilder.buildLoginSQL(acc, type);
+        ResultSet res = connector.sendSQL(sql);
+        String returnedPassword = null;
+        if (res.next()) {
+            returnedPassword = res.getString("password");
+            // System.out.println(returnedPassword);
+        }
+        return (returnedPassword != null) && pw.equals(returnedPassword);
+    }
+
+    public String getNextTransNum() throws SQLException {
+        String maxTransNumSql = "SELECT MAX(TRANSACTIONNUM) FROM TRANSACTION_DEALWITH_PAY";
+        ResultSet rs = connector.sendSQL(maxTransNumSql);
+        String transNum = "0000000000";
+        rs.next();
+        String maxTransNum = rs.getString("MAX(TRANSACTIONNUM)");
+        if (maxTransNum != null) {
+            transNum = String.format("%010d", Integer.parseInt(maxTransNum) + 1);
+        }
+        return transNum;
+    }
+
+    public String getDateTime() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return now.format(dtf);
+
+    }
+
+    public String getPaymentMethod() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Payment Method");
+        alert.setContentText("Please choose your payment method");
+        alert.setHeaderText(null);
+        ButtonType creditCard = new ButtonType("Credit Card");
+        ButtonType debitCard = new ButtonType("Debit Card");
+        ButtonType cash = new ButtonType("Cash");
+        ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(creditCard, debitCard, cash, cancel);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.toString();
     }
 }
 

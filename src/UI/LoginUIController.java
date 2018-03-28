@@ -2,6 +2,7 @@ package UI;
 
 import Util.Connector;
 import Util.SQLBuilder;
+import com.sun.tools.corba.se.idl.PragmaEntry;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ public class LoginUIController {
     private static final ToggleGroup group = new ToggleGroup();
     private EventHandler<MouseEvent> customerLoginEvent, employeeLoginEvent;
     private static Connector connector = Connector.getInstance();
+    private Alert error = new Alert(Alert.AlertType.ERROR);
 
     @FXML
     private TextField account;
@@ -38,6 +40,8 @@ public class LoginUIController {
         customerLoginEvent = getCustomerLoginEvent();
         employeeLoginEvent = getEmployeeLoginEvent();
         loginButton.setOnMouseReleased(customerLoginEvent);
+        error.setTitle("Error");
+        error.setHeaderText(null);
     }
 
     @FXML // customer toggle button
@@ -63,20 +67,7 @@ public class LoginUIController {
                 try {
                     String enteredAccount = account.getText();
                     String enteredPassword = password.getText();
-                    char type;
-                    if (customerButton.isSelected()) {
-                        type = 'c';
-                    } else {
-                        type = 'e';
-                    }
-                    String sql = SQLBuilder.buildLoginSQL(enteredAccount, type);
-                    ResultSet res = connector.sendSQL(sql);
-                    String returnedPassword = "";
-                    if (res.next()) {
-                        returnedPassword = res.getString("password");
-                        System.out.println(returnedPassword);
-                    }
-                    if (enteredPassword.equals(returnedPassword) && !returnedPassword.isEmpty()) {
+                    if (connector.validateAccount(enteredAccount, enteredPassword, 'c')) {
                         String alter1 = "ALTER SESSION SET NLS_COMP=LINGUISTIC";
                         String alter2 = "ALTER SESSION SET NLS_SORT=BINARY_CI";
                         connector.sendSQL(alter1);
@@ -87,16 +78,19 @@ public class LoginUIController {
                         Stage loginStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                         loginStage.close();
                         Stage customerStage = new Stage();
-                        customerStage.setTitle("Walmart");
+                        customerStage.setTitle("Walmart Client");
                         customerStage.setScene(customerViewScene);
                         customerStage.show();
                     } else {
-                        System.out.println("wrong");
+                        error.setContentText("Username or password incorrect.");
+                        error.showAndWait();
                     }
                 } catch (IOException e) {
-                    System.err.println(e); //TODO
+                    error.setContentText("Fatal error.");
+                    error.showAndWait();
                 } catch (SQLException e) {
-                    System.err.println(e); //TODO
+                    error.setContentText("Database not connected: " + e.getErrorCode());
+                    error.showAndWait();
                 }
             }
         };
@@ -106,7 +100,34 @@ public class LoginUIController {
         return new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("employee login");
+                try {
+                    String enteredAccount = account.getText();
+                    String enteredPassword = password.getText();
+                    if (connector.validateAccount(enteredAccount, enteredPassword, 'e')) {
+                        String alter1 = "ALTER SESSION SET NLS_COMP=LINGUISTIC";
+                        String alter2 = "ALTER SESSION SET NLS_SORT=BINARY_CI";
+                        connector.sendSQL(alter1);
+                        connector.sendSQL(alter2);  // Set case insensitive
+                        connector.setAccount(enteredAccount);
+                        Parent employeeViewParent= FXMLLoader.load(getClass().getResource("EmployeeUI.fxml"));
+                        Scene employeeViewScene = new Scene(employeeViewParent);
+                        Stage loginStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        loginStage.close();
+                        Stage employeeStage = new Stage();
+                        employeeStage.setTitle("Walmart Cashier System");
+                        employeeStage.setScene(employeeViewScene);
+                        employeeStage.show();
+                    } else {
+                        error.setContentText("Username or password incorrect.");
+                        error.showAndWait();
+                    }
+                } catch (IOException e) {
+                    error.setContentText("Fatal error.");
+                    error.showAndWait();
+                } catch (SQLException e) {
+                    error.setContentText("Database not connected: " + e.getErrorCode());
+                    error.showAndWait();
+                }
             }
         };
     }
