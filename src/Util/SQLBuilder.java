@@ -14,13 +14,16 @@ public class SQLBuilder {
     }
 
     public static String buildSearchProductSQL(String category, String keys) {
-        String[] keyArray = keys.split("\\s+");
         String sql = "select * from ";
         if (category == null || category.isEmpty()) {
             sql += "product ";
         } else {
             sql += String.format("(select * from product where category like '%s') ", category);
         }
+        if (keys == null || keys.isEmpty()) {
+            return sql;
+        }
+        String[] keyArray = keys.split("\\s+");
         sql += "where ";
         for (String key: keyArray) {
             sql += String.format("(P_id like '%s' or ", key);
