@@ -36,21 +36,30 @@ public class SQLBuilder {
         return sql.substring(0, sql.length() - 5);
     }
 
+    public static String buildSearchKeySQL(String key, String table, String column) {
+        return String.format("select * from %s where %s like '%s'", table, column, key);
+    }
+
     public static String buildInsertTransactionSQL(String tansNum, String dateTime, String pm,
                                           String email, String eid, double total) {
         String sql = "insert into TRANSACTION_DEALWITH_PAY VALUES ";
-        if (eid.isEmpty()) {
-            sql += String.format("('%s', '%s', '%s', '%s', null, %.2f)",
-                    tansNum, dateTime, pm, email, total);
+        sql += String.format("('%s', '%s', '%s', ", tansNum, dateTime, pm);
+        if (email == null || email.isEmpty()) {
+            sql += "null, ";
         } else {
-            sql += String.format("('%s', '%s', '%s', '%s', '%s', %.2f)",
-                    tansNum, dateTime, pm, email, eid, total);
+            sql += String.format("'%s', ", email);
         }
+        if (eid == null || eid.isEmpty()) {
+            sql += "null, ";
+        } else {
+            sql += String.format("'%s', ", eid);
+        }
+        sql += String.format("%.2f)", total);
         return sql;
     }
 
-    public static String buildInsertIncludeSQL(String transNum, String pid) {
-        return String.format("insert into Include values ('%s', '%s')", transNum, pid);
+    public static String buildInsertIncludeSQL(String transNum, String pid, int quantity) {
+        return String.format("insert into Include values ('%s', '%s', %d)", transNum, pid, quantity);
     }
 
     public static String buildSelectInventorySQL(String pId) {

@@ -28,7 +28,6 @@ public class CustomerUIController {
 
     private VBox cartPane = new VBox();
     private FlowPane itemPane = new FlowPane();
-    private ObservableList<String> choices;
     private static Connector connector = Connector.getInstance();
     private Alert error = new Alert(Alert.AlertType.ERROR);
 
@@ -120,34 +119,27 @@ public class CustomerUIController {
             double itemTotal = Double.parseDouble(itemTotalLabel.getText().substring(1));
             total += itemTotal;
         }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Payment Method");
-        alert.setContentText("Please choose your payment method");
-        alert.setHeaderText(null);
-        ButtonType creditCard = new ButtonType("Credit Card");
-        ButtonType debitCard = new ButtonType("Debit Card");
-        ButtonType cash = new ButtonType("Cash");
-        ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(creditCard, debitCard, cash, cancel);
-        Optional<ButtonType> result = alert.showAndWait();
-        System.out.println(result.toString());
-        if (result.get() != cancel) {
-            String pm = result.get().getText();
-            String insertTransactionSql = SQLBuilder.buildInsertTransactionSQL(transNum, dateTime, pm, email,
-                    "", total);
-            connector.sendSQL(insertTransactionSql);
-            for (Node n: cartPane.getChildren()) {
-                FlowPane item = (FlowPane) n;
-                String insertIncludeSql = SQLBuilder.buildInsertIncludeSQL(transNum, item.getId());
-                connector.sendSQL(insertIncludeSql);
+        String pm = connector.getPaymentMethod();
+        if (!pm.equals("Cancel")) {
+            try {
+                String insertTransactionSql = SQLBuilder.buildInsertTransactionSQL(transNum, dateTime, pm, email,
+                        "", total);
+                connector.sendSQL(insertTransactionSql);
+                for (Node n : cartPane.getChildren()) {
+                    FlowPane item = (FlowPane) n;
+                    TextField quantityBox = (TextField) item.getChildren().get(2);
+                    int quantity = Integer.parseInt(quantityBox.getText());
+                    String insertIncludeSql = SQLBuilder.buildInsertIncludeSQL(transNum, item.getId(), quantity);
+                    connector.sendSQL(insertIncludeSql);
+                }
+                connector.commit();
+                cartPane.getChildren().clear();
+                connector.showCheckoutComplete();
+            } catch (Exception e) {
+                connector.rollback(); // roll back if any error occurred
+                error.setContentText("Error: " + e.getMessage());
+                error.showAndWait();
             }
-            connector.commit();
-            cartPane.getChildren().clear();
-            Alert successInfo = new Alert(Alert.AlertType.INFORMATION);
-            successInfo.setTitle("Checkout Completed");
-            successInfo.setHeaderText(null);
-            successInfo.setContentText("Checkout completed. Thank you!");
-            successInfo.showAndWait();
         }
     }
 
@@ -207,22 +199,19 @@ public class CustomerUIController {
                 Label cprice = new Label(String.format("$%.2f", price));
                 cprice.setPrefWidth(80);
                 Button remove = new Button("remove");
-                quantityBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
-                    @Override
-                    public void handle(KeyEvent event) {
-                        if (event.getCode().equals(KeyCode.ENTER)) {
+                quantityBox.setOnKeyPressed(ke -> {
+                    if (ke.getCode().equals(KeyCode.ENTER)) {
+                        try {
                             int quantity = Integer.parseInt(quantityBox.getText());
                             double totalPrice = quantity * price;
                             cprice.setText(String.format("$%.2f", totalPrice));
+                        } catch (NumberFormatException e) {
+                            error.setContentText("Quantity has to be number.");
+                            error.showAndWait();
                         }
                     }
                 });
-                remove.setOnMouseReleased(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        cartPane.getChildren().remove(cartItem);
-                    }
-                });
+                remove.setOnMouseReleased(me -> cartPane.getChildren().remove(cartItem));
                 cartItem.getChildren().addAll(cname, x, quantityBox, cprice, remove);
                 cartPane.getChildren().add(cartItem);
             }
@@ -230,7 +219,7 @@ public class CustomerUIController {
     }
 
     private void initChoiceBox() {
-        choices = FXCollections.observableArrayList(
+        ObservableList<String> choices = FXCollections.observableArrayList(
                 "",
                 "Patio and Garden",
                 "Clothing",

@@ -101,7 +101,15 @@ public class Connector {
         ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(creditCard, debitCard, cash, cancel);
         Optional<ButtonType> result = alert.showAndWait();
-        return result.toString();
+        return result.get().getText();
+    }
+
+    public void  showCheckoutComplete() {
+        Alert successInfo = new Alert(Alert.AlertType.INFORMATION);
+        successInfo.setTitle("Checkout Completed");
+        successInfo.setHeaderText(null);
+        successInfo.setContentText("Checkout completed. Thank you!");
+        successInfo.showAndWait();
     }
 }
 

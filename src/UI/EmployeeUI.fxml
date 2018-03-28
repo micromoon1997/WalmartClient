@@ -20,9 +20,9 @@
                   <TableView fx:id="cartView" layoutX="91.0" layoutY="55.0" prefHeight="454.0" prefWidth="1078.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
                       <TableColumn fx:id="pidColumn" prefWidth="200.0" text="Pid" />
-                      <TableColumn fx:id="pnameColumn" maxWidth="600.0" prefWidth="600.0" text="Name" />
+                      <TableColumn fx:id="pNameColumn" maxWidth="600.0" prefWidth="600.0" text="Name" />
                         <TableColumn fx:id="pQuantityColumn" prefWidth="100.0" text="Quantity" />
-                        <TableColumn fx:id="ppriceColumn" prefWidth="160.0" text="Price" />
+                        <TableColumn fx:id="pPriceColumn" prefWidth="160.0" text="Price" />
                     </columns>
                   </TableView>
                   <ListView fx:id="searchView" prefHeight="454.0" prefWidth="1078.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -36,11 +36,11 @@
                            <children>
                               <TextField fx:id="pidBox" layoutX="10.0" layoutY="67.0" prefHeight="27.0" prefWidth="270.0" promptText="pid" />
                               <Button fx:id="addToCart" layoutX="10.0" layoutY="101.0" mnemonicParsing="false" onMouseReleased="#handleAddToCart" prefHeight="27.0" prefWidth="89.0" text="Add to Cart" />
-                              <ChoiceBox layoutX="8.0" layoutY="175.0" prefHeight="27.0" prefWidth="97.0" />
-                              <TextField fx:id="searchBox" layoutX="9.0" layoutY="143.0" prefHeight="27.0" prefWidth="271.0" />
-                              <Button layoutX="8.0" layoutY="208.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="141.0" text="View Search Result" />
-                              <Button fx:id="search" layoutX="126.0" layoutY="175.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="89.0" text="Search" />
-                              <Button layoutX="200.0" layoutY="102.0" mnemonicParsing="false" text="Checkout" />
+                              <ChoiceBox fx:id="choiceBox" layoutX="8.0" layoutY="175.0" prefHeight="27.0" prefWidth="97.0" />
+                              <TextField fx:id="searchBox" layoutX="9.0" layoutY="143.0" prefHeight="27.0" prefWidth="271.0" promptText="Primary Key" />
+                              <Button fx:id="viewSwitch" layoutX="8.0" layoutY="208.0" mnemonicParsing="false" onMouseReleased="#handleViewSwitch" prefHeight="27.0" prefWidth="141.0" text="View Search Result" />
+                              <Button fx:id="search" layoutX="126.0" layoutY="175.0" mnemonicParsing="false" onMouseReleased="#handleSearch" prefHeight="27.0" prefWidth="89.0" text="Search" />
+                              <Button layoutX="200.0" layoutY="102.0" mnemonicParsing="false" onMouseReleased="#handleCheckout" text="Checkout" />
                               <Button layoutX="115.0" layoutY="102.0" mnemonicParsing="false" onMouseReleased="#handleRemove" text="Remove" />
                               <TextField layoutX="6.0" layoutY="259.0" prefHeight="27.0" prefWidth="124.0" promptText="yyyy/mm/dd" />
                               <Label layoutX="138.0" layoutY="263.0" text="to" />
@@ -50,7 +50,7 @@
                               <Button fx:id="setCustomer" layoutX="183.0" layoutY="7.0" mnemonicParsing="false" onMouseReleased="#handleSetCustomer" text="Set Customer" />
                            </children>
                         </AnchorPane>
-                        <FlowPane prefHeight="342.0" prefWidth="771.0" />
+                        <FlowPane hgap="30.0" prefHeight="342.0" prefWidth="771.0" vgap="30.0" />
                     </items>
                   </SplitPane>
                </children>
