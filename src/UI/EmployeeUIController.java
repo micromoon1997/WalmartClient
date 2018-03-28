@@ -6,9 +6,12 @@ import Util.SQLBuilder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.text.Font;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -19,9 +22,12 @@ public class EmployeeUIController {
     private Connector connector = Connector.getInstance();
     private Alert error = new Alert(Alert.AlertType.ERROR);
     private String eid = connector.getAccount();
+    private String currTable;
 
     @FXML
     private AnchorPane showPane;
+    @FXML
+    private FlowPane managePane;
     @FXML
     private Button addToCart, setCustomer, search, viewSwitch;
     @FXML
@@ -29,11 +35,13 @@ public class EmployeeUIController {
     @FXML
     private TableView<Item> cartView;
     @FXML
-    private ListView<String> searchView;
+    private TableView<SearchItem> searchView;
     @FXML
     private ChoiceBox<String> choiceBox;
     @FXML
     private TableColumn<Item, Item> pidColumn, pNameColumn, pQuantityColumn, pPriceColumn;
+    @FXML
+    private TableColumn<SearchItem, SearchItem> keyColumn, nameColumn;
 
     public EmployeeUIController() {
     }
@@ -47,20 +55,23 @@ public class EmployeeUIController {
         pNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         pQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         pPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        keyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         initChoiceBox();
     }
 
 
     @FXML
     private void handleAddToCart() throws SQLException{
-        searchView.setVisible(false);
-        cartView.setVisible(true);
         String pId = pidBox.getText();
         if (pId.isEmpty()) {
             error.setContentText("pid cannot be empty.");
             error.showAndWait();
             return;
         }
+        searchView.setVisible(false);
+        cartView.setVisible(true);
+        viewSwitch.setText("View Search Result");
         String sql = SQLBuilder.buildSearchProductSQL(null, pId);
         ResultSet res = connector.sendSQL(sql);
         if (res.next()) {
@@ -77,7 +88,6 @@ public class EmployeeUIController {
                     return;
                 }
             }
-            System.out.println("aaaaaaa");
             cartView.getItems().add(new Item(pid, pname, 1, pprice));
         } else {
             error.setContentText("Product with pid: " + pId + " not found.");
@@ -142,7 +152,7 @@ public class EmployeeUIController {
                 }
                 connector.commit();
                 cartView.getItems().clear();
-                connector.showCheckoutComplete();
+                connector.showCompleteDialog();
             } catch (Exception e) {
                 connector.rollback(); // roll back if caught any error
                 error.setContentText("Error: " + e.getMessage());
@@ -154,38 +164,40 @@ public class EmployeeUIController {
     @FXML
     private void handleSearch() throws SQLException {
         String table = choiceBox.getSelectionModel().getSelectedItem();
-        String column = null;
-        if (table.equals("Product")) {
-            column = "p_id";
-        } else if (table.equals("Customer")) {
-            column = "email";
-        } else if (table.equals("Employee")) {
-            column = "e_id";
-        } else {
+        String searchKey = searchBox.getText();
+        cartView.setVisible(false);
+        searchView.setVisible(true);
+        viewSwitch.setText("View Cart");
+        searchView.getItems().clear();
+        if (table == null) {
             error.setContentText("Please choose the table to search.");
             error.showAndWait();
             return;
         }
-        String key = searchBox.getText();
-        if (key == null || key.isEmpty()) {
-            error.setContentText("Please enter the primary key.");
-            error.showAndWait();
-            return;
-        }
-        String sql = SQLBuilder.buildSearchKeySQL(key, table, column);
-        ResultSet res = connector.sendSQL(sql);
-        cartView.setVisible(false);
-        searchView.setVisible(true);
-        searchView.getItems().clear();
-        if (res.next()) {
-//            ResultSetMetaData rsmd = res.getMetaData();
-//            int columnCount = rsmd.getColumnCount();
-//            for (int i = 0; i <= columnCount; i++) {
-//                String columnName = rsmd.getColumnName(i);
-//
-//            }
-            System.out.println(res.getString(1));
-            searchView.getItems().add(res.getString(1));
+        if (table.equals("Product")) {
+            String sql = SQLBuilder.buildSearchProductSQL(null, searchKey);
+            ResultSet rs = connector.sendSQL(sql);
+            while (rs.next()) {
+                String key = rs.getString("p_id");
+                String name = rs.getString("p_name");
+                searchView.getItems().add(new SearchItem(key, name, table));
+            }
+        } else if (table.equals("Customer")) {
+            String sql = SQLBuilder.buildSearchCustomerSQL(searchKey);
+            ResultSet rs = connector.sendSQL(sql);
+            while (rs.next()) {
+                String key = rs.getString("email");
+                String name = rs.getString("c_name");
+                searchView.getItems().add(new SearchItem(key, name, table));
+            }
+        } else if (table.equals("Employee")) {
+            String sql = SQLBuilder.buildSearchEmployeeSQL(searchKey);
+            ResultSet rs = connector.sendSQL(sql);
+            while (rs.next()) {
+                String key = rs.getString("e_id");
+                String name = rs.getString("e_name");
+                searchView.getItems().add(new SearchItem(key, name, table));
+            }
         }
     }
 
@@ -199,6 +211,142 @@ public class EmployeeUIController {
             cartView.setVisible(false);
             searchView.setVisible(true);
             viewSwitch.setText("View Cart");
+        }
+    }
+
+    @FXML
+    private void handleEdit() throws SQLException {
+        SearchItem searchItem = searchView.getSelectionModel().getSelectedItem();
+        if (searchItem == null) {
+            error.setContentText("No item is selected.");
+            error.showAndWait();
+            return;
+        }
+        managePane.getChildren().clear();
+        String table = searchItem.getTable();
+        currTable = table;
+        String key = searchItem.getKey();
+        String sql;
+        switch (table) {
+            case "Product":
+                sql = SQLBuilder.buildSearchProductSQL(null, key);
+                break;
+            case "Customer":
+                sql = SQLBuilder.buildSearchCustomerSQL(key);
+                break;
+            case "Employee":
+                sql = SQLBuilder.buildSearchEmployeeSQL(key);
+                break;
+            default:
+                error.setContentText("Invalid table.");
+                error.showAndWait();
+                return;
+        }
+        ResultSet rs = connector.sendSQL(sql);
+        if (rs.next()) {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                String colName = rsmd.getColumnName(i);
+                Label col = new Label(colName);
+                col.setPrefSize(100, 30);
+                col.setFont(new Font("System", 12));
+                TextField colValue = new TextField(rs.getString(colName));
+                colValue.setPrefSize(200, 30);
+                if (i == 1) {
+                    colValue.setDisable(true);
+                }
+                managePane.getChildren().addAll(col, colValue);
+            }
+        }
+
+    }
+
+    @FXML
+    private void handleSubmit() throws SQLException{
+        if (currTable == null) {
+            error.setContentText("No item is being edited.");
+            error.showAndWait();
+            return;
+        }
+        try {
+            ObservableList<Node> list = managePane.getChildren();
+            if (currTable.equals("Product")) {
+                String pid, category, pname, psize, color, brandname, thumbnail;
+                double sp, pp, rating;
+                int inventory;
+                pid = ((TextField) list.get(1)).getText();
+                category = ((TextField) list.get(3)).getText();
+                sp = Double.parseDouble(((TextField) list.get(5)).getText());
+                pp = Double.parseDouble(((TextField) list.get(7)).getText());
+                inventory = Integer.parseInt(((TextField) list.get(9)).getText());
+                pname = ((TextField) list.get(11)).getText();
+                psize = ((TextField) list.get(13)).getText();
+                color = ((TextField) list.get(15)).getText();
+                rating = Double.parseDouble(((TextField) list.get(17)).getText());
+                brandname = ((TextField) list.get(19)).getText();
+                thumbnail = ((TextField) list.get(21)).getText();
+                String sql = SQLBuilder.buildUpdateProductSQL(pid, category, sp, pp, inventory, pname,
+                        psize, color, rating, brandname, thumbnail);
+                connector.sendSQL(sql);
+                connector.showCompleteDialog();
+            } else if (currTable.equals("Customer")) {
+                String email, cname, address, password;
+                email = ((TextField) list.get(1)).getText();
+                cname = ((TextField) list.get(3)).getText();
+                address = ((TextField) list.get(5)).getText();
+                password = ((TextField) list.get(7)).getText();
+                String sql = SQLBuilder.buildUpdateCustomerSQL(email, cname, address, password);
+                connector.sendSQL(sql);
+                connector.showCompleteDialog();
+            } else if (currTable.equals("Employee")) {
+                String eid, ename, startdate, etype, password;
+                double salary;
+                eid = ((TextField) list.get(1)).getText();
+                ename = ((TextField) list.get(3)).getText();
+                salary = Double.parseDouble(((TextField) list.get(5)).getText());
+                startdate = ((TextField) list.get(7)).getText();
+                etype = ((TextField) list.get(9)).getText();
+                password = ((TextField) list.get(11)).getText();
+                String sql = SQLBuilder.buildUpdateEmployeeSQL(eid, ename, salary, startdate, etype, password);
+                connector.sendSQL(sql);
+                connector.showCompleteDialog();
+
+            }
+        } catch (NumberFormatException e) {
+            error.setContentText("Malformed number.");
+            error.showAndWait();
+        } catch (SQLException e) {
+            connector.rollback();
+            error.setContentText("Fail to submit: " + e.getErrorCode());
+            error.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleDelete() throws SQLException {
+
+    }
+
+    private void initChoiceBox() {
+        ObservableList<String> choicesM = FXCollections.observableArrayList(
+                "Product",
+                "Customer",
+                "Employee");
+        ObservableList<String> choicesE = FXCollections.observableArrayList(
+                "Product",
+                "Customer");
+        String sql = String.format("select e_type from employee where e_id like '%s'", eid);
+        try {
+            ResultSet rs = connector.sendSQL(sql);
+            if (rs.next()) {
+                if (rs.getString("e_type").equals("Manager")) {
+                    choiceBox.setItems(choicesM);
+                } else {
+                    choiceBox.setItems(choicesE);
+                }
+            }
+        } catch (SQLException e) {
+            choiceBox.setItems(choicesE);
         }
     }
 
@@ -232,12 +380,25 @@ public class EmployeeUIController {
         }
     }
 
-    private void initChoiceBox() {
-        ObservableList<String> choices = FXCollections.observableArrayList(
-                "Product",
-                "Customer",
-                "Employee");
-        choiceBox.setItems(choices);
+    public class SearchItem {
+        private String key;
+        private String name;
+        private String table;
+        public SearchItem(String key, String name, String table) {
+            this.key = key;
+            this.name = name;
+            this.table = table;
+        }
+        public String getKey() {
+            return key;
+        }
+        public String getName() {
+            return name;
+        }
+
+        public String getTable() {
+            return table;
+        }
     }
 
 }

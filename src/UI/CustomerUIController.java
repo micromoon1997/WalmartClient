@@ -2,9 +2,6 @@ package UI;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import Util.Connector;
@@ -67,12 +64,12 @@ public class CustomerUIController {
         System.out.println(category);
         String searchKeys = searchBox.getText();
         String sql = SQLBuilder.buildSearchProductSQL(category, searchKeys);
-        ResultSet res = connector.sendSQL(sql);
-        while (res.next()) {
-            String pId = res.getString("p_id");
-            String pName = res.getString("p_name");
-            double price = res.getFloat("saleprice");
-            String thumbnail = res.getString("thumbnail");
+        ResultSet rs = connector.sendSQL(sql);
+        while (rs.next()) {
+            String pId = rs.getString("p_id");
+            String pName = rs.getString("p_name");
+            double price = rs.getFloat("saleprice");
+            String thumbnail = rs.getString("thumbnail");
             FlowPane item = buildItem(pId, pName, price, thumbnail);
             itemPane.getChildren().add(item);
         }
@@ -134,7 +131,7 @@ public class CustomerUIController {
                 }
                 connector.commit();
                 cartPane.getChildren().clear();
-                connector.showCheckoutComplete();
+                connector.showCompleteDialog();
             } catch (Exception e) {
                 connector.rollback(); // roll back if any error occurred
                 error.setContentText("Error: " + e.getMessage());
@@ -254,7 +251,7 @@ public class CustomerUIController {
 
     private boolean checkInventory(String pId, int quantiry) throws SQLException{
         String sql = SQLBuilder.buildSelectInventorySQL(pId);
-        ResultSet res = connector.sendSQL(sql);
-        return res.next() && res.getInt("inventory") >= quantiry;
+        ResultSet rs = connector.sendSQL(sql);
+        return rs.next() && rs.getInt("inventory") >= quantiry;
     }
 }

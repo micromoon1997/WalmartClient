@@ -104,11 +104,11 @@ public class Connector {
         return result.get().getText();
     }
 
-    public void  showCheckoutComplete() {
+    public void showCompleteDialog() {
         Alert successInfo = new Alert(Alert.AlertType.INFORMATION);
-        successInfo.setTitle("Checkout Completed");
+        successInfo.setTitle("Completed");
         successInfo.setHeaderText(null);
-        successInfo.setContentText("Checkout completed. Thank you!");
+        successInfo.setContentText("Completed. Thank you!");
         successInfo.showAndWait();
     }
 }
