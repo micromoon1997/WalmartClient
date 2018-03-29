@@ -71,6 +71,7 @@ public class Connector {
         return (returnedPassword != null) && pw.equals(returnedPassword);
     }
 
+    // Aggregation query
     public String getNextTransNum() throws SQLException {
         String maxTransNumSql = "SELECT MAX(TRANSACTIONNUM) FROM TRANSACTION_DEALWITH_PAY";
         ResultSet rs = connector.sendSQL(maxTransNumSql);

@@ -71,9 +71,9 @@ public class SQLBuilder {
         return String.format("select * from %s where %s like '%s'", table, column, key);
     }
 
-    public static String buildUpdateProductSQL(String pid, String category, double sp, double pp,
-                                               int inventory, String pname, String psize, String color,
-                                               double rating, String brandname, String tn) {
+    public static String buildProductSQL(String pid, String category, double sp, double pp,
+                                         int inventory, String pname, String psize, String color,
+                                         double rating, String brandname, String tn, char IorU) {
         if (!pid.isEmpty()) {
             pid = "'" + pid + "'";
             if (category != null) category = "'" + category + "'";
@@ -82,36 +82,53 @@ public class SQLBuilder {
             if (color != null) color = "'" + color + "'";
             if (brandname != null) brandname = "'" + brandname + "'";
             if (tn != null) tn = "'" + tn + "'";
-            return String.format("update product set category = %s, saleprice = %.2f," +
-                    " purchaseprice = %.2f, inventory = %d, p_name = %s, p_size = %s, color = %s," +
-                    " rating = %.2f, brandname = %s, thumbnail = %s where p_id like %s",
-                    category, sp, pp, inventory, pname, psize, color, rating, brandname, tn, pid);
+            if (IorU == 'u') {
+                return String.format("update product set category = %s, saleprice = %.2f," +
+                                " purchaseprice = %.2f, inventory = %d, p_name = %s, p_size = %s, color = %s," +
+                                " rating = %.2f, brandname = %s, thumbnail = %s where p_id like %s",
+                        category, sp, pp, inventory, pname, psize, color, rating, brandname, tn, pid);
+            } else if (IorU == 'i') {
+                return String.format("insert into product values (%s, %s, %.2f, %.2f, %d, %s, %s, %s, %.2f, %s, %s)",
+                        pid, category, sp, pp, inventory, pname, psize, color, rating, brandname, tn);
+            }
+            return null;
         } else
             return null;
     }
 
-    public static String buildUpdateCustomerSQL(String email, String cname, String address, String password) {
+    public static String buildCustomerSQL(String email, String cname, String address, String password, char IorU) {
         if (!email.isEmpty()) {
             email = "'" + email + "'";
             if (cname != null) cname = "'" + cname + "'";
             if (address != null) address = "'" + address + "'";
             if (password != null) password = "'" + password + "'";
-            return String.format("update customer set c_name = %s, address = %s, password = %s where email like %s",
-                    cname, address, password, email);
+            if (IorU== 'u') {
+                return String.format("update customer set c_name = %s, address = %s, password = %s where email like %s",
+                        cname, address, password, email);
+            } else if (IorU == 'i') {
+                return String.format("insert into customer values (%s, %s, %s, %s)", email, cname, address, password);
+            }
+            return null;
         } else
             return null;
     }
 
-    public static String buildUpdateEmployeeSQL(String eid, String ename, double salary, String startdate, String etype,
-                                                String password) {
+    public static String buildEmployeeSQL(String eid, String ename, double salary, String startdate, String etype,
+                                          String password, char IorU) {
         if (!eid.isEmpty()) {
             eid = "'" + eid + "'";
             if (ename != null) ename = "'" + ename + "'";
             if (startdate != null) startdate = "'" + startdate + "'";
             if (etype != null) etype = "'" + etype + "'";
             if (password != null) password = "'" + password + "'";
-            return String.format("update employee set e_name = %s, salary = %.2f, startdate = %s, e_type = %s, " +
-                    "password = %s where e_id like %s", ename, salary, startdate, etype, password, eid);
+            if (IorU == 'u') {
+                return String.format("update employee set e_name = %s, salary = %.2f, startdate = %s, e_type = %s, " +
+                        "password = %s where e_id like %s", ename, salary, startdate, etype, password, eid);
+            } else if (IorU == 'i') {
+                return String.format("insert into employee values (%s, %s, %.2f, %s, %s, %s)",
+                        eid, ename, salary, startdate, etype, password);
+            }
+            return null;
         } else
             return null;
     }

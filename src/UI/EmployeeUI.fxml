@@ -58,7 +58,7 @@
                               <Button fx:id="setCustomer" layoutX="248.0" layoutY="7.0" mnemonicParsing="false" onMouseReleased="#handleSetCustomer" prefHeight="25.0" prefWidth="102.0" text="Set Customer" />
                               <Button layoutX="107.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleEdit" prefHeight="25.0" prefWidth="60.0" text="Edit" />
                               <Button layoutX="200.0" layoutY="206.0" mnemonicParsing="false" onMouseReleased="#handleSubmit" prefHeight="25.0" prefWidth="150.0" text="Submit" />
-                              <Button layoutX="187.0" layoutY="173.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="70.0" text="Add" />
+                              <Button layoutX="187.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleAdd" prefHeight="25.0" prefWidth="70.0" text="Add" />
                               <Button layoutX="280.0" layoutY="173.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="70.0" text="Delete" />
                            </children>
                         </AnchorPane>

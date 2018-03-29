@@ -257,12 +257,13 @@ public class EmployeeUIController {
                 }
                 managePane.getChildren().addAll(col, colValue);
             }
+            managePane.setId("Edit");
         }
 
     }
 
     @FXML
-    private void handleSubmit() throws SQLException{
+    private void handleSubmit() throws SQLException {
         if (currTable == null) {
             error.setContentText("No item is being edited.");
             error.showAndWait();
@@ -270,6 +271,11 @@ public class EmployeeUIController {
         }
         try {
             ObservableList<Node> list = managePane.getChildren();
+            char type;
+            if (managePane.getId().equals("Edit"))
+                type = 'u';
+            else
+                type = 'i';
             if (currTable.equals("Product")) {
                 String pid, category, pname, psize, color, brandname, thumbnail;
                 double sp, pp, rating;
@@ -285,8 +291,8 @@ public class EmployeeUIController {
                 rating = Double.parseDouble(((TextField) list.get(17)).getText());
                 brandname = ((TextField) list.get(19)).getText();
                 thumbnail = ((TextField) list.get(21)).getText();
-                String sql = SQLBuilder.buildUpdateProductSQL(pid, category, sp, pp, inventory, pname,
-                        psize, color, rating, brandname, thumbnail);
+                String sql = SQLBuilder.buildProductSQL(pid, category, sp, pp, inventory, pname,
+                        psize, color, rating, brandname, thumbnail, type);
                 connector.sendSQL(sql);
                 connector.showCompleteDialog();
             } else if (currTable.equals("Customer")) {
@@ -295,7 +301,7 @@ public class EmployeeUIController {
                 cname = ((TextField) list.get(3)).getText();
                 address = ((TextField) list.get(5)).getText();
                 password = ((TextField) list.get(7)).getText();
-                String sql = SQLBuilder.buildUpdateCustomerSQL(email, cname, address, password);
+                String sql = SQLBuilder.buildCustomerSQL(email, cname, address, password, type);
                 connector.sendSQL(sql);
                 connector.showCompleteDialog();
             } else if (currTable.equals("Employee")) {
@@ -307,24 +313,49 @@ public class EmployeeUIController {
                 startdate = ((TextField) list.get(7)).getText();
                 etype = ((TextField) list.get(9)).getText();
                 password = ((TextField) list.get(11)).getText();
-                String sql = SQLBuilder.buildUpdateEmployeeSQL(eid, ename, salary, startdate, etype, password);
+                String sql = SQLBuilder.buildEmployeeSQL(eid, ename, salary, startdate, etype, password, type);
                 connector.sendSQL(sql);
                 connector.showCompleteDialog();
-
             }
+            connector.commit();
         } catch (NumberFormatException e) {
             error.setContentText("Malformed number.");
             error.showAndWait();
         } catch (SQLException e) {
             connector.rollback();
-            error.setContentText("Fail to submit: " + e.getErrorCode());
+            error.setContentText("Fail to submit: " + e.getMessage());
             error.showAndWait();
         }
     }
 
     @FXML
     private void handleDelete() throws SQLException {
+        //TODO
+    }
 
+    @FXML
+    private void handleAdd() throws SQLException {
+        String table = choiceBox.getValue();
+        if (table == null) {
+            error.setContentText("No table is selected.");
+            error.showAndWait();
+            return;
+        }
+        managePane.getChildren().clear();
+        currTable = table;
+        ResultSet rs = connector.sendSQL(String.format("select * from %s where rownum=1", table));
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int max = rsmd.getColumnCount();
+        for (int i = 1; i <= max; i++) {
+            String colName = rsmd.getColumnName(i);
+            Label col = new Label(colName);
+            col.setPrefSize(100, 30);
+            col.setFont(new Font("System", 12));
+            TextField colValue = new TextField();
+            colValue.setPrefSize(200, 30);
+            managePane.getChildren().addAll(col, colValue);
+        }
+        managePane.setId("Add");
     }
 
     private void initChoiceBox() {
