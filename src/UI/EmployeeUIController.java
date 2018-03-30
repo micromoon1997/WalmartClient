@@ -72,7 +72,7 @@ public class EmployeeUIController {
         searchView.setVisible(false);
         cartView.setVisible(true);
         viewSwitch.setText("View Search Result");
-        String sql = SQLBuilder.buildSearchProductSQL(null, pId);
+        String sql = SQLBuilder.buildSearchProductSQL(pId);
         ResultSet res = connector.sendSQL(sql);
         if (res.next()) {
             String pid = res.getString("p_id");
@@ -175,7 +175,7 @@ public class EmployeeUIController {
             return;
         }
         if (table.equals("Product")) {
-            String sql = SQLBuilder.buildSearchProductSQL(null, searchKey);
+            String sql = SQLBuilder.buildSearchProductSQL(searchKey);
             ResultSet rs = connector.sendSQL(sql);
             while (rs.next()) {
                 String key = rs.getString("p_id");
@@ -229,7 +229,7 @@ public class EmployeeUIController {
         String sql;
         switch (table) {
             case "Product":
-                sql = SQLBuilder.buildSearchProductSQL(null, key);
+                sql = SQLBuilder.buildSearchProductSQL(key);
                 break;
             case "Customer":
                 sql = SQLBuilder.buildSearchCustomerSQL(key);
@@ -330,15 +330,14 @@ public class EmployeeUIController {
 
     @FXML
     private void handleDelete() throws SQLException{
-//        SearchItem searchItem = searchView.getSelectionModel().getSelectedItem();
-//        String table = searchItem.getTable();
-//        String key = searchItem.getKey();
-//        String colName = connector.getPKColName(table);
-        String table = "Customer";
-        String key = "James.Taylor2000@gmail.com";
-        String colName = "email";
+        SearchItem searchItem = searchView.getSelectionModel().getSelectedItem();
+        String table = searchItem.getTable();
+        String key = searchItem.getKey();
+        String colName = connector.getPKColName(table);
         String sql = SQLBuilder.buildDeleteSQL(key, table, colName);
         connector.sendSQL(sql);
+        searchView.getItems().remove(searchItem);
+        connector.commit();
         System.out.println("commit2");
     }
 

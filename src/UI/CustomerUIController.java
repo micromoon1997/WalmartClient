@@ -27,6 +27,7 @@ public class CustomerUIController {
     private FlowPane itemPane = new FlowPane();
     private static Connector connector = Connector.getInstance();
     private Alert error = new Alert(Alert.AlertType.ERROR);
+    private String searchPid;
 
     @FXML
     private CheckBox categoryCB, nameCB, colorCB, sizeCB, ratingCB, brandCB, thumbnailCB;
@@ -54,6 +55,7 @@ public class CustomerUIController {
         checkout.setVisible(false);
         categoryChoice.setValue("");
         ratingChoice.setValue(">=");
+        searchPid = null;
     }
 
     @FXML
@@ -67,19 +69,24 @@ public class CustomerUIController {
         if (brandCB.isSelected()) sql += ", brandname";
         if (thumbnailCB.isSelected()) sql += ", thumbnail";
         sql += " from product where ";
-        String val = categoryChoice.getValue();
-        if (!val.equals("")) sql += String.format("category like '%s' and ", val);
-        val = nameTF.getText();
-        if (!val.isEmpty()) sql += String.format("p_name like '%%%s%%' and ", val);
-        val = colorTF.getText();
-        if (!val.isEmpty()) sql += String.format("color like '%%%s%%' and ", val);
-        val = sizeTF.getText();
-        if (!val.isEmpty()) sql += String.format("p_size like '%%%s%%' and ", val);
-        val = ratingTF.getText();
-        String operator = ratingChoice.getValue();
-        if (!val.isEmpty()) sql += String.format("rating %s %.2f and ", operator, Double.parseDouble(val));
-        val = brandTF.getText();
-        if (!val.isEmpty()) sql += String.format("brandname like '%%%s%%' and ", val);
+        if (searchPid != null) {
+            sql += String.format("p_id like '%s' and ", searchPid);
+            searchPid = null;
+        } else {
+            String val = categoryChoice.getValue();
+            if (!val.equals("")) sql += String.format("category like '%s' and ", val);
+            val = nameTF.getText();
+            if (!val.isEmpty()) sql += String.format("p_name like '%%%s%%' and ", val);
+            val = colorTF.getText();
+            if (!val.isEmpty()) sql += String.format("color like '%%%s%%' and ", val);
+            val = sizeTF.getText();
+            if (!val.isEmpty()) sql += String.format("p_size like '%%%s%%' and ", val);
+            val = ratingTF.getText();
+            String operator = ratingChoice.getValue();
+            if (!val.isEmpty()) sql += String.format("rating %s %.2f and ", operator, Double.parseDouble(val));
+            val = brandTF.getText();
+            if (!val.isEmpty()) sql += String.format("brandname like '%%%s%%' and ", val);
+        }
         ResultSet rs = connector.sendSQL(sql.substring(0, sql.length() - 5));
         while (rs.next()) {
             String pid, category = null, pname, psize = null, color = null, brand = null, thumbnail = null;
@@ -161,6 +168,24 @@ public class CustomerUIController {
                 error.showAndWait();
             }
         }
+    }
+
+    @FXML
+    private void handleDivision() throws SQLException{
+        String sql = SQLBuilder.buildDivision();
+        ResultSet rs = connector.sendSQL(sql);
+        while (rs.next()) {
+            searchPid = rs.getString("p_id");
+            handleSearch();
+        }
+    }
+
+    @FXML
+    private void handleBestSeller() throws SQLException{
+        ResultSet rs = connector.sendSQL(SQLBuilder.buildBestSeller());
+        rs.next();
+        searchPid = rs.getString("p_id");
+        handleSearch();
     }
 
 

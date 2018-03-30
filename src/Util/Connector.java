@@ -41,16 +41,7 @@ public class Connector {
         PreparedStatement ps = connection.prepareCall(sqlCMD);
         System.out.println(sqlCMD);
         ps.execute();
-        System.out.println("aaaa");
-        ResultSet rs = ps.getResultSet();
-        System.out.println("bbbbb");
-        return rs;
-    }
-
-    public void sendSQLNoReturn(String sqlCMD) throws SQLException {
-        System.out.println(sqlCMD);
-        PreparedStatement stmt = connection.prepareStatement(sqlCMD);
-        stmt.executeUpdate(sqlCMD);
+        return ps.getResultSet();
     }
 
     public void commit() throws SQLException{

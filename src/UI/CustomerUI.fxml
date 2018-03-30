@@ -31,7 +31,8 @@
                   <TextField fx:id="ratingTF" layoutX="840.0" layoutY="9.0" prefHeight="27.0" prefWidth="207.0" />
                   <ChoiceBox fx:id="ratingChoice" layoutX="797.0" layoutY="9.0" prefHeight="27.0" prefWidth="42.0" />
                   <CheckBox fx:id="thumbnailCB" layoutX="313.0" layoutY="118.0" mnemonicParsing="false" text="Show Thumbnail" />
-                  <Button layoutX="916.0" layoutY="113.0" mnemonicParsing="false" text="Everyone's Choice" />
+                  <Button layoutX="916.0" layoutY="113.0" mnemonicParsing="false" onMouseReleased="#handleDivision" text="Everyone's Choice" />
+                  <Button layoutX="818.0" layoutY="113.0" mnemonicParsing="false" onMouseReleased="#handleBestSeller" text="Best Seller" />
                </children>
             </AnchorPane>
             <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="615.0" prefWidth="1078.0" />

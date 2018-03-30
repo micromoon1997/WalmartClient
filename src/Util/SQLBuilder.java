@@ -13,13 +13,8 @@ public class SQLBuilder {
         return sql;
     }
 
-    public static String buildSearchProductSQL(String category, String keys) {
-        String sql = "select * from ";
-        if (category == null || category.isEmpty()) {
-            sql += "product ";
-        } else {
-            sql += String.format("(select * from product where category like '%s') ", category);
-        }
+    public static String buildSearchProductSQL(String keys) {
+        String sql = "select * from product ";
         if (keys == null || keys.isEmpty()) {
             return sql;
         }
@@ -65,10 +60,6 @@ public class SQLBuilder {
             sql += String.format("e_type like '%%%s%%') and ", key);
         }
         return sql.substring(0, sql.length() - 5);
-    }
-
-    public static String buildSearchKeySQL(String key, String table, String column) {
-        return String.format("select * from %s where %s like '%s'", table, column, key);
     }
 
     public static String buildProductSQL(String pid, String category, double sp, double pp,
@@ -131,6 +122,14 @@ public class SQLBuilder {
             return null;
         } else
             return null;
+    }
+
+    public static String buildDivision() {
+        return "select p_id from PRODUCT p where not exists ((select distinct c.EMAIL from CUSTOMER c) minus (select distinct EMAIL from TRANSACTION_DEALWITH_PAY tdp natural join INCLUDE i where p.P_ID like i.P_ID))";
+    }
+
+    public static String buildBestSeller() {
+        return "select P_ID, total from (select P_ID, sum(QUANTITY) total from INCLUDE group by P_ID order by total desc) where rownum=1";
     }
 
     public static String buildDeleteSQL(String key, String table, String colName) {
