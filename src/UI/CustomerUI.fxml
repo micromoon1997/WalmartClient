@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UI.CustomerUIController">
    <children>
-      <SplitPane dividerPositions="0.11152882205513784" layoutX="313.0" layoutY="21.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.21428571428571427" layoutX="313.0" layoutY="21.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane fx:id="topPane" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <Label layoutX="30.0" layoutY="15.0" prefHeight="50.0" prefWidth="119.0" text="Category">
-                     <font>
-                        <Font size="22.0" />
-                     </font>
-                  </Label>
-                  <ChoiceBox fx:id="choiceBox" layoutX="153.0" layoutY="30.0" prefWidth="150.0" />
-                  <TextField fx:id="searchBox" layoutX="357.0" layoutY="30.0" onKeyPressed="#handleSearchEnter" prefHeight="27.0" prefWidth="398.0" />
-                  <Button fx:id="searchButton" layoutX="796.0" layoutY="30.0" mnemonicParsing="false" onMousePressed="#handleSearch" text="Search" />
-                  <Button fx:id="myCart" layoutX="894.0" layoutY="30.0" mnemonicParsing="false" onMouseReleased="#handleMyCart" text="MyCart" />
-                  <Button fx:id="checkout" layoutX="980.0" layoutY="30.0" mnemonicParsing="false" onMouseReleased="#handleCheckout" text="Checkout" />
+                  <ChoiceBox fx:id="categoryChoice" layoutX="114.0" layoutY="61.0" prefHeight="27.0" prefWidth="250.0" />
+                  <TextField fx:id="nameTF" layoutX="114.0" layoutY="9.0" onKeyPressed="#handleSearchEnter" prefHeight="27.0" prefWidth="250.0" />
+                  <Button fx:id="searchButton" layoutX="23.0" layoutY="113.0" mnemonicParsing="false" onMousePressed="#handleSearch" prefHeight="25.0" text="Search" />
+                  <Button fx:id="myCart" layoutX="114.0" layoutY="113.0" mnemonicParsing="false" onMouseReleased="#handleMyCart" prefHeight="25.0" text="MyCart" />
+                  <Button fx:id="checkout" layoutX="206.0" layoutY="113.0" mnemonicParsing="false" onMouseReleased="#handleCheckout" prefHeight="25.0" text="Checkout" />
+                  <CheckBox fx:id="nameCB" disable="true" layoutX="14.0" layoutY="17.0" mnemonicParsing="false" selected="true" text="Name" />
+                  <CheckBox fx:id="categoryCB" layoutX="14.0" layoutY="65.0" mnemonicParsing="false" text="Category" />
+                  <CheckBox fx:id="colorCB" layoutX="387.0" layoutY="14.0" mnemonicParsing="false" text="Color" />
+                  <TextField fx:id="colorTF" layoutX="454.0" layoutY="9.0" prefHeight="27.0" prefWidth="250.0" />
+                  <CheckBox fx:id="sizeCB" layoutX="387.0" layoutY="66.0" mnemonicParsing="false" text="Size" />
+                  <TextField fx:id="sizeTF" layoutX="454.0" layoutY="61.0" prefHeight="27.0" prefWidth="250.0" />
+                  <CheckBox fx:id="ratingCB" layoutX="723.0" layoutY="14.0" mnemonicParsing="false" text="rating" />
+                  <CheckBox fx:id="brandCB" layoutX="723.0" layoutY="66.0" mnemonicParsing="false" text="Brand" />
+                  <TextField fx:id="brandTF" layoutX="797.0" layoutY="61.0" prefHeight="27.0" prefWidth="250.0" />
+                  <TextField fx:id="ratingTF" layoutX="840.0" layoutY="9.0" prefHeight="27.0" prefWidth="207.0" />
+                  <ChoiceBox fx:id="ratingChoice" layoutX="797.0" layoutY="9.0" prefHeight="27.0" prefWidth="42.0" />
+                  <CheckBox fx:id="thumbnailCB" layoutX="313.0" layoutY="118.0" mnemonicParsing="false" text="Show Thumbnail" />
+                  <Button layoutX="916.0" layoutY="113.0" mnemonicParsing="false" text="Everyone's Choice" />
                </children>
             </AnchorPane>
-            <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
+            <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="615.0" prefWidth="1078.0" />
         </items>
       </SplitPane>
    </children>

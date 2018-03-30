@@ -59,7 +59,7 @@
                               <Button layoutX="107.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleEdit" prefHeight="25.0" prefWidth="60.0" text="Edit" />
                               <Button layoutX="200.0" layoutY="206.0" mnemonicParsing="false" onMouseReleased="#handleSubmit" prefHeight="25.0" prefWidth="150.0" text="Submit" />
                               <Button layoutX="187.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleAdd" prefHeight="25.0" prefWidth="70.0" text="Add" />
-                              <Button layoutX="280.0" layoutY="173.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="70.0" text="Delete" />
+                              <Button layoutX="280.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleDelete" prefHeight="25.0" prefWidth="70.0" text="Delete" />
                            </children>
                         </AnchorPane>
                         <FlowPane fx:id="managePane" alignment="CENTER" hgap="10.0" prefHeight="342.0" prefWidth="771.0" vgap="20.0" />

@@ -41,7 +41,16 @@ public class Connector {
         PreparedStatement ps = connection.prepareCall(sqlCMD);
         System.out.println(sqlCMD);
         ps.execute();
-        return ps.getResultSet();
+        System.out.println("aaaa");
+        ResultSet rs = ps.getResultSet();
+        System.out.println("bbbbb");
+        return rs;
+    }
+
+    public void sendSQLNoReturn(String sqlCMD) throws SQLException {
+        System.out.println(sqlCMD);
+        PreparedStatement stmt = connection.prepareStatement(sqlCMD);
+        stmt.executeUpdate(sqlCMD);
     }
 
     public void commit() throws SQLException{
@@ -82,6 +91,13 @@ public class Connector {
             transNum = String.format("%010d", Integer.parseInt(maxTransNum) + 1);
         }
         return transNum;
+    }
+
+    public String getPKColName(String table) throws SQLException {
+        String sql = String.format("select * from %s where rownum=1", table);
+        ResultSet rs = sendSQL(sql);
+        rs.next();
+        return rs.getMetaData().getColumnName(1);
     }
 
     public String getDateTime() {

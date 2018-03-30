@@ -1,8 +1,8 @@
 package UI;
-import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ResourceBundle;
+import java.util.ArrayList;
+import java.util.List;
 
 import Util.Connector;
 import Util.SQLBuilder;
@@ -29,19 +29,17 @@ public class CustomerUIController {
     private Alert error = new Alert(Alert.AlertType.ERROR);
 
     @FXML
-    private ResourceBundle resources;
-    @FXML
-    private URL location;
+    private CheckBox categoryCB, nameCB, colorCB, sizeCB, ratingCB, brandCB, thumbnailCB;
     @FXML
     private Button searchButton, myCart, checkout;
     @FXML
     private ScrollPane scrollPane;
     @FXML
-    private ChoiceBox<String> choiceBox;
+    private ChoiceBox<String> categoryChoice, ratingChoice;
     @FXML
     private AnchorPane topPane;
     @FXML
-    private TextField searchBox;
+    private TextField nameTF, colorTF, sizeTF, ratingTF, brandTF;
 
     @FXML
     void initialize() {
@@ -54,23 +52,48 @@ public class CustomerUIController {
         cartPane.setId("cartPane");
         initChoiceBox();
         checkout.setVisible(false);
-        choiceBox.setValue("");
+        categoryChoice.setValue("");
+        ratingChoice.setValue(">=");
     }
 
     @FXML
     private void handleSearch() throws SQLException{
         itemPane.getChildren().clear();
-        String category = choiceBox.getValue().toString();
-        System.out.println(category);
-        String searchKeys = searchBox.getText();
-        String sql = SQLBuilder.buildSearchProductSQL(category, searchKeys);
-        ResultSet rs = connector.sendSQL(sql);
+        String sql = "select p_id, p_name, saleprice";
+        if (categoryCB.isSelected()) sql += ", category";
+        if (colorCB.isSelected()) sql += ", color";
+        if (sizeCB.isSelected()) sql += ", p_size";
+        if (ratingCB.isSelected()) sql += ", rating";
+        if (brandCB.isSelected()) sql += ", brandname";
+        if (thumbnailCB.isSelected()) sql += ", thumbnail";
+        sql += " from product where ";
+        String val = categoryChoice.getValue();
+        if (!val.equals("")) sql += String.format("category like '%s' and ", val);
+        val = nameTF.getText();
+        if (!val.isEmpty()) sql += String.format("p_name like '%%%s%%' and ", val);
+        val = colorTF.getText();
+        if (!val.isEmpty()) sql += String.format("color like '%%%s%%' and ", val);
+        val = sizeTF.getText();
+        if (!val.isEmpty()) sql += String.format("p_size like '%%%s%%' and ", val);
+        val = ratingTF.getText();
+        String operator = ratingChoice.getValue();
+        if (!val.isEmpty()) sql += String.format("rating %s %.2f and ", operator, Double.parseDouble(val));
+        val = brandTF.getText();
+        if (!val.isEmpty()) sql += String.format("brandname like '%%%s%%' and ", val);
+        ResultSet rs = connector.sendSQL(sql.substring(0, sql.length() - 5));
         while (rs.next()) {
-            String pId = rs.getString("p_id");
-            String pName = rs.getString("p_name");
-            double price = rs.getFloat("saleprice");
-            String thumbnail = rs.getString("thumbnail");
-            FlowPane item = buildItem(pId, pName, price, thumbnail);
+            String pid, category = null, pname, psize = null, color = null, brand = null, thumbnail = null;
+            double price = -1, rating = -1;
+            pid = rs.getString("p_id");
+            pname = rs.getString("p_name");
+            price = rs.getDouble("saleprice");
+            if (categoryCB.isSelected()) category = rs.getString("category");
+            if (colorCB.isSelected()) color = rs.getString("color");
+            if (sizeCB.isSelected()) psize = rs.getString("p_size");
+            if (ratingCB.isSelected()) rating = rs.getDouble("rating");
+            if (brandCB.isSelected()) brand = rs.getString("brandname");
+            if (thumbnailCB.isSelected()) thumbnail = rs.getString("thumbnail");
+            FlowPane item = buildItem(pid, category, price, pname, psize, color, rating, brand, thumbnail);
             itemPane.getChildren().add(item);
         }
     }
@@ -141,30 +164,55 @@ public class CustomerUIController {
     }
 
 
-    private FlowPane buildItem(String pId, String pName, double price, String thumbnail) {
+    private FlowPane buildItem(String pId, String category, double price, String pname, String psize,
+                               String color, double rating, String brand, String thumbnail) {
         FlowPane item = new FlowPane();
-        ImageView lthumbnail = new ImageView();
-        lthumbnail.setFitHeight(150);
-        lthumbnail.setFitWidth(150);
-        try {
-            Image img = new Image(thumbnail, true);
-            lthumbnail.setImage(img);
-        } catch (IllegalArgumentException e) {
-            // TODO
+        item.setPrefWidth(150);
+        if (thumbnail != null) {
+            ImageView thumbnailLabel = new ImageView();
+            thumbnailLabel.setFitHeight(150);
+            thumbnailLabel.setFitWidth(150);
+            try {
+                Image img = new Image(thumbnail, true);
+                thumbnailLabel.setImage(img);
+                item.getChildren().add(thumbnailLabel);
+            } catch (IllegalArgumentException e) {
+                // TODO
+            }
         }
-        Label lname = new Label(pName);
-        Label lprice = new Label(String.format("$ %.2f", price));
+        if (category != null) {
+            Label categoryLabel = new Label(category);
+            categoryLabel.setPrefSize(150, 50);
+            item.getChildren().add(categoryLabel);
+        }
+        if (psize != null) {
+            Label psizeLabel = new Label(psize);
+            psizeLabel.setPrefSize(150, 50);
+            item.getChildren().add(psizeLabel);
+        }
+        if (color != null) {
+            Label colorLabel = new Label(color);
+            colorLabel.setPrefSize(150, 50);
+            item.getChildren().add(colorLabel);
+        }
+        if (rating != -1) {
+            Label ratingLabel = new Label(String.format("%.2f", rating));
+            ratingLabel.setPrefSize(150, 50);
+            item.getChildren().add(ratingLabel);
+        }
+        if (brand != null) {
+            Label brandLabel = new Label(brand);
+            brandLabel.setPrefSize(150, 50);
+            item.getChildren().add(brandLabel);
+        }
+        Label pnameLabel = new Label(pname);
+        Label priceLabel = new Label(String.format("$ %.2f", price));
         Button addToCart = new Button("Add");
-        item.setPrefSize(150.0, 250.0);
-        lname.setPrefSize(150.0, 50.0);
-        lprice.setPrefSize(100.0, 50.0);
+        pnameLabel.setPrefSize(150, 50);
+        priceLabel.setPrefSize(100.0, 50.0);
         addToCart.setPrefSize(50.0, 50.0);
-        item.getChildren().addAll(lthumbnail, lname, lprice, addToCart);
-        addToCart.setOnMouseReleased(getAddHandler(pId, pName, price));
-//        Label testXXX = new Label("Add");
-//        testXXX.setPrefSize(50.0, 50.0);
-//        item.getChildren().addAll(testXXX);
-//        testXXX.setOnMouseReleased(getAddHandler(pId, pName, price));
+        addToCart.setOnMouseReleased(getAddHandler(pId, pname, price));
+        item.getChildren().addAll(pnameLabel, priceLabel, addToCart);
         return item;
     }
 
@@ -246,8 +294,15 @@ public class CustomerUIController {
                 "Home Improvement",
                 "Toys"
         );
-        choiceBox.setItems(choices);
+        ObservableList<String> choices2 = FXCollections.observableArrayList(
+                ">=",
+                "<=",
+                "="
+        );
+        categoryChoice.setItems(choices);
+        ratingChoice.setItems(choices2);
     }
+
 
     private boolean checkInventory(String pId, int quantiry) throws SQLException{
         String sql = SQLBuilder.buildSelectInventorySQL(pId);

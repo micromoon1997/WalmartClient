@@ -329,8 +329,17 @@ public class EmployeeUIController {
     }
 
     @FXML
-    private void handleDelete() throws SQLException {
-        //TODO
+    private void handleDelete() throws SQLException{
+//        SearchItem searchItem = searchView.getSelectionModel().getSelectedItem();
+//        String table = searchItem.getTable();
+//        String key = searchItem.getKey();
+//        String colName = connector.getPKColName(table);
+        String table = "Customer";
+        String key = "James.Taylor2000@gmail.com";
+        String colName = "email";
+        String sql = SQLBuilder.buildDeleteSQL(key, table, colName);
+        connector.sendSQL(sql);
+        System.out.println("commit2");
     }
 
     @FXML
