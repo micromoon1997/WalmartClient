@@ -31,13 +31,13 @@ public class EmployeeUIController {
     @FXML
     private Button addToCart, setCustomer, search, viewSwitch;
     @FXML
-    private TextField pidBox, emailBox, searchBox;
+    private TextField pidBox, emailBox, searchBox, startDateBox, endDateBox;
     @FXML
     private TableView<Item> cartView;
     @FXML
     private TableView<SearchItem> searchView;
     @FXML
-    private ChoiceBox<String> choiceBox;
+    private ChoiceBox<String> choiceBox, bestOrWorst;
     @FXML
     private TableColumn<Item, Item> pidColumn, pNameColumn, pQuantityColumn, pPriceColumn;
     @FXML
@@ -132,6 +132,11 @@ public class EmployeeUIController {
         String transNum = connector.getNextTransNum();
         String dateTime = connector.getDateTime();
         String email = null;
+        if (cartView.getItems().isEmpty()) {
+            error.setContentText("No item added.");
+            error.showAndWait();
+            return;
+        }
         if (emailBox.isDisable()) {
             email = emailBox.getText();
         }
@@ -366,6 +371,44 @@ public class EmployeeUIController {
         managePane.setId("Add");
     }
 
+    @FXML
+    private void handleSellingCategory() throws SQLException{
+        String val = bestOrWorst.getValue();
+        ResultSet rs = connector.sendSQL(SQLBuilder.buildSellingCategory(val.equals("Best")));
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setTitle(val + " Selling Category");
+        rs.next();
+        String category = rs.getString("category");
+        String avg = String.format("%.2f" ,rs.getDouble("avg"));
+        alert.setContentText(String.format("Category: %s\nAverage Sales: %s", category, avg));
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void handleProfitReport() throws SQLException{
+        String startDate = startDateBox.getText();
+        String endDate = endDateBox.getText();
+        String timePeriod = "where ";
+        if (!startDate.isEmpty()) timePeriod += String.format("datetime >= '%s 00:00:00'  and ",startDate);
+        if (!endDate.isEmpty()) timePeriod += String.format("datetime <= '%s 23:59:59'  and ", endDate);
+        timePeriod = timePeriod.substring(0, timePeriod.length() - 6);
+        String turnoverSql = "select sum(TOTAL) sum from TRANSACTION_DEALWITH_PAY " + timePeriod;
+        String profitSql = "select sum(SALEPRICE - PURCHASEPRICE) sum " +
+                "from INCLUDE natural join TRANSACTION_DEALWITH_PAY natural join PRODUCT " + timePeriod;
+        ResultSet rs = connector.sendSQL(turnoverSql);
+        rs.next();
+        String turnover = rs.getString("sum");
+        rs = connector.sendSQL(profitSql);
+        rs.next();
+        String profit = rs.getString("sum");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setTitle("Profit");
+        alert.setContentText(String.format("Turnover: %s\nProfit: %s", turnover, profit));
+        alert.showAndWait();
+    }
+
     private void initChoiceBox() {
         ObservableList<String> choicesM = FXCollections.observableArrayList(
                 "Product",
@@ -374,6 +417,10 @@ public class EmployeeUIController {
         ObservableList<String> choicesE = FXCollections.observableArrayList(
                 "Product",
                 "Customer");
+        ObservableList<String> choicesS = FXCollections.observableArrayList(
+                "Best",
+                "Worst"
+        );
         String sql = String.format("select e_type from employee where e_id like '%s'", eid);
         try {
             ResultSet rs = connector.sendSQL(sql);
@@ -387,6 +434,9 @@ public class EmployeeUIController {
         } catch (SQLException e) {
             choiceBox.setItems(choicesE);
         }
+        bestOrWorst.setItems(choicesS);
+        choiceBox.setValue("Product");
+        bestOrWorst.setValue("Best");
     }
 
     public class Item {

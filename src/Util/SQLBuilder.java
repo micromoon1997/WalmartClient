@@ -132,6 +132,17 @@ public class SQLBuilder {
         return "select P_ID, total from (select P_ID, sum(QUANTITY) total from INCLUDE group by P_ID order by total desc) where rownum=1";
     }
 
+    public static String buildSellingCategory(boolean isBest) {
+        String sql = "select CATEGORY, avg\n" +
+                "from (select CATEGORY, avg(QUANTITY) avg\n" +
+                "      from INCLUDE i natural join PRODUCT p\n" +
+                "      group by CATEGORY\n" +
+                "      order by avg ";
+        if (isBest) sql += "desc";
+        sql += ") where ROWNUM=1";
+        return sql;
+    }
+
     public static String buildDeleteSQL(String key, String table, String colName) {
         return String.format("delete from %s where %s like '%s'", table, colName, key);
     }

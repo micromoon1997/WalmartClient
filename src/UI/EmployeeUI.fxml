@@ -47,19 +47,21 @@
                               <Button fx:id="search" layoutX="18.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleSearch" prefHeight="25.0" prefWidth="70.0" text="Search" />
                               <Button layoutX="260.0" layoutY="78.0" mnemonicParsing="false" onMouseReleased="#handleCheckout" prefHeight="25.0" prefWidth="90.0" text="Checkout" />
                               <Button layoutX="140.0" layoutY="78.0" mnemonicParsing="false" onMouseReleased="#handleRemove" prefWidth="90.0" text="Remove" />
-                              <TextField layoutX="18.0" layoutY="248.0" prefHeight="25.0" prefWidth="130.0" promptText="yyyy/mm/dd" />
+                              <TextField fx:id="startDateBox" layoutX="18.0" layoutY="248.0" prefHeight="25.0" prefWidth="130.0" promptText="yyyy/mm/dd" />
                               <Label layoutX="175.0" layoutY="248.0" text="to">
                                  <font>
                                     <Font size="20.0" />
                                  </font></Label>
-                              <TextField layoutX="220.0" layoutY="248.0" prefHeight="25.0" prefWidth="130.0" promptText="yyyy/mm/dd" />
-                              <Button layoutX="18.0" layoutY="288.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Sale Report" />
+                              <TextField fx:id="endDateBox" layoutX="220.0" layoutY="248.0" prefHeight="25.0" prefWidth="130.0" promptText="yyyy/mm/dd" />
+                              <Button layoutX="18.0" layoutY="288.0" mnemonicParsing="false" onMouseReleased="#handleProfitReport" prefHeight="27.0" prefWidth="102.0" text="Profit Report" />
                               <TextField fx:id="emailBox" layoutX="18.0" layoutY="7.0" prefHeight="27.0" prefWidth="211.0" promptText="Cutomer Email" />
                               <Button fx:id="setCustomer" layoutX="248.0" layoutY="7.0" mnemonicParsing="false" onMouseReleased="#handleSetCustomer" prefHeight="25.0" prefWidth="102.0" text="Set Customer" />
                               <Button layoutX="107.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleEdit" prefHeight="25.0" prefWidth="60.0" text="Edit" />
                               <Button layoutX="200.0" layoutY="206.0" mnemonicParsing="false" onMouseReleased="#handleSubmit" prefHeight="25.0" prefWidth="150.0" text="Submit" />
                               <Button layoutX="187.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleAdd" prefHeight="25.0" prefWidth="70.0" text="Add" />
                               <Button layoutX="280.0" layoutY="173.0" mnemonicParsing="false" onMouseReleased="#handleDelete" prefHeight="25.0" prefWidth="70.0" text="Delete" />
+                              <Button layoutX="230.0" layoutY="288.0" mnemonicParsing="false" onMouseReleased="#handleSellingCategory" text="Selling Category" />
+                              <ChoiceBox fx:id="bestOrWorst" layoutX="159.0" layoutY="288.0" prefHeight="27.0" prefWidth="70.0" />
                            </children>
                         </AnchorPane>
                         <FlowPane fx:id="managePane" alignment="CENTER" hgap="10.0" prefHeight="342.0" prefWidth="771.0" vgap="20.0" />
