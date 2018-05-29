@@ -1,8 +1,6 @@
-package UI;
+package Main;
 
 import Util.Connector;
-import Util.SQLBuilder;
-import com.sun.tools.corba.se.idl.PragmaEntry;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class LoginUIController {
