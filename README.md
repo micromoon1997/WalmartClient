@@ -1,2 +1,2 @@
 # WalmartClient
-A database client
+A academic project with a desktop UI for a database course.
